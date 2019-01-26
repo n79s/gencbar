@@ -1,6 +1,7 @@
 import re
 import io
 from PIL import Image
+
 class GenCBar:
     imgs = {}
     bardeg = {}

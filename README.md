@@ -13,6 +13,8 @@ https://www.post.japanpost.jp/useful_tool/barcode/index.html
 
 ※ 郵便局への持ち込みで読取テスト等はまだ行っていません ※
 
+住所の文字列からバーコード用データ抽出するモジュール追加
+
 ## 使用例
 
 ```
@@ -20,6 +22,15 @@ import gencbar
 
 gcbar = gencbar.GenCBar()
 barstr = "10000131-3-2-503"
+img, barcode = gcbar.create_bar(barstr)
+img.save("customer_barcode.png")
+print(barcode)
+
+cbardata = gencbar.Addr2CBarData()
+yuubin = '2630023'
+addr = '千葉市稲毛区緑町3丁目30-8　郵便ビル403号'
+barstr = cbardata.get_ccode_all(yuubin,addr)
+
 img, barcode = gcbar.create_bar(barstr)
 img.save("customer_barcode.png")
 print(barcode)
