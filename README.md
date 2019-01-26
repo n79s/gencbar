@@ -15,6 +15,14 @@ https://www.post.japanpost.jp/useful_tool/barcode/index.html
 
 住所の文字列からバーコード用データ抽出するモジュール追加
 
+性能的には
+
+カスバー用のコード抽出：0.1ms / 件
+カスバー画像作成：0.6ms / 件
+
+画像の保存までやると1件：1.5ms程度
+
+
 ## 使用例
 
 ```
@@ -55,7 +63,7 @@ python setup.py sdist
 ## インストール
 
 ```
-pip install dist/GenCBar-0.1.tar.gz
+pip install dist/GenCBar-0.2.tar.gz
 #その内PyPIに上げる
 ```
 

@@ -1,4 +1,5 @@
 import gencbar
+import time
 
 def test_01():
     cbar = gencbar.GenCBar()
@@ -223,6 +224,35 @@ def test_19():
     a = '福井県福井市新田塚3丁目80-25　J1ビル2-B'
     img,bardata = cbar.create_bar(cbardata.get_ccode_all(y,a))
     assert '91000673-80-25c191-2c19' == ''.join(bardata)
+
+def test_20():
+    cbardata = gencbar.Addr2CBarData()
+    cbar = gencbar.GenCBar()
+
+    y = '9100067'
+    a = '福井県福井市新田塚3丁目80-25　J1ビル2-B'
+    bardatastr = ''
+    time_sta = time.perf_counter()
+    for i in range(1000):
+        bardatastr = cbardata.get_ccode_all(y,a)
+    time_end = time.perf_counter()
+    time_span = time_end- time_sta
+
+    print(time_span)#0.11sくらい → 一件0.1ms
+    assert time_span < 0.2
+
+    time_sta = time.perf_counter()
+    for i in range(1000):
+        img,bardata = cbar.create_bar(bardatastr)
+    time_end = time.perf_counter()
+    time_span = time_end- time_sta
+
+    print(time_span)#0.61sくらい → 一件0.6ms
+    assert time_span < 1.0
+
+
+
+
 
 
 
