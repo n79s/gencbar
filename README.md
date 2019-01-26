@@ -14,6 +14,10 @@ https://www.post.japanpost.jp/useful_tool/barcode/index.html
 ※ 郵便局への持ち込みで読取テスト等はまだ行っていません ※
 
 住所の文字列からバーコード用データ抽出するモジュール追加
+コード抽出は下記サイトの検証データはクリアしてます。
+
+https://www.post.japanpost.jp/zipcode/zipmanual/p25.html
+
 
 性能的には
 
@@ -21,6 +25,8 @@ https://www.post.japanpost.jp/useful_tool/barcode/index.html
 カスバー画像作成：0.6ms / 件
 
 画像の保存までやると1件：1.5ms程度
+
+
 
 
 ## 使用例
