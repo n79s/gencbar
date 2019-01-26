@@ -1,9 +1,0 @@
-README.md
-setup.py
-GenCBar.egg-info/PKG-INFO
-GenCBar.egg-info/SOURCES.txt
-GenCBar.egg-info/dependency_links.txt
-GenCBar.egg-info/requires.txt
-GenCBar.egg-info/top_level.txt
-gencbar/__init__.py
-gencbar/gencbar.py
