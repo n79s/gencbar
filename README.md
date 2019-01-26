@@ -11,6 +11,8 @@ https://www.post.japanpost.jp/useful_tool/barcode/index.html
 
 戻りで画像とバーコード文字列のリスト（スタート／ストップコードを除く）を返却。
 
+※ 郵便局への持ち込みで読取テスト等はまだ行っていません ※
+
 ## 使用例
 
 ```
