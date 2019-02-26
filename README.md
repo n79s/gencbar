@@ -21,7 +21,7 @@ https://www.post.japanpost.jp/zipcode/zipmanual/p25.html
 
 性能的には
 
-カスバー用のコード抽出：0.1ms / 件
+カスバー用のコード抽出：0.2ms / 件
 カスバー画像作成：0.6ms / 件
 
 画像の保存までやると1件：1.5ms程度
