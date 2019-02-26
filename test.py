@@ -238,7 +238,7 @@ def test_20():
     time_end = time.perf_counter()
     time_span = time_end- time_sta
 
-    print(time_span)#0.11sくらい → 一件0.1ms
+    print(time_span)#0.22sくらい → 一件0.2ms
     assert time_span < 0.3
 
     time_sta = time.perf_counter()
