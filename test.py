@@ -239,7 +239,7 @@ def test_20():
     time_span = time_end- time_sta
 
     print(time_span)#0.11sくらい → 一件0.1ms
-    assert time_span < 0.2
+    assert time_span < 0.3
 
     time_sta = time.perf_counter()
     for i in range(1000):

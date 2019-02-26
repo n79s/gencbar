@@ -6,17 +6,19 @@ class Addr2CBarData:
 
     reg_al = re.compile(r'[A-Z]')
     reg_ksuji_nomi = re.compile(r'[一二三四五六七八九〇壱弐参十拾]+')
-    reg_ksuji_fukumu = re.compile('.*[一二三四五六七八九〇壱弐参十拾].')
+    reg_ksuji_fukumu = re.compile('.*[一二三四五六七八九〇壱弐参十拾].*')
     req_sp_chiwari = re.compile(r'^地割')
     #reg_num = re.compile(r'[0-9]') # 正規表現よりisdecimal()の方が速い（全角入ってこない前提）
     space_haifun = [' ','-']
     sp_addr_strs = ['丁目','番地','地割','丁','番','号','線','の','ノ','-']
 
-    def get_stack_str(self,stack:list):
-        result = ''.join(stack)
+    #リスト内の要素を文字列として連結
+    def get_list_joinstr(self,p_list:list):
+        result = ''.join(p_list)
         return result
 
-    def get_ccode_all(self,p_yuubin,p_str:str):
+    #郵便番号と住所文字列をパラメータにカスバーコードを返す
+    def get_ccode_all(self,p_yuubin:str, p_str:str):
         if(p_yuubin == None):
             return None
         wkstr = p_yuubin.replace('-','')
@@ -24,190 +26,112 @@ class Addr2CBarData:
             return None
         return ''.join([wkstr,self.get_ccode(p_str)])
 
+    def get_char_type(self,p_str:str):
+        if(p_str.isdecimal()):
+            return 0
+        elif(self.reg_al.match(p_str)):
+            return 1
+        elif(self.reg_ksuji_nomi.match(p_str)):
+            return 2
+        elif(p_str in self.space_haifun):
+            return 3
+        else:
+            return 9
+
+    def get_char_type2(self,p_str:str):
+        if(p_str.isdecimal()):
+            return 0
+        elif(self.reg_al.fullmatch(p_str)):
+            return 1
+        else:
+            return 9
+    #住所文字列からコードを抽出
     def get_ccode(self,p_str:str):
         #正規化(全角→半角) と 小文字→大文字
         wkstr = unicodedata.normalize("NFKC", p_str).upper()
-        # print(wkstr)
 
         #記号系を削除
         wkstr = wkstr.replace('&','').replace('/','').replace('.','').replace('．','').replace('・','')
 
+        #一文字づつのListにする
         str_list = list(wkstr)
-        # print(str_list)
 
-
-        # print('#1')
-        stack_num = []
-        stack_kanji = []
-        stack_ksuuji = []
-        stack_al = []
-        wklist = []
+        #連続した数字、漢数字、スペース、ハイフン、その他漢字文字のリストにまとめる
+        tmp_buff = []
+        tmp_list01 = []
+        tmp_cc_type = 0
         for cc in str_list:
-            if(cc.isdecimal()):
-                stack_num.append(cc)
-                if(stack_kanji):
-                    wklist.append(self.get_stack_str(stack_kanji))
-                    stack_kanji.clear()
-                if(stack_al):
-                    wklist.append(self.get_stack_str(stack_al))
-                    stack_al.clear()
-                if(stack_ksuuji):
-                    wklist.append(self.get_stack_str(stack_ksuuji))
-                    stack_ksuuji.clear()
-            elif(self.reg_al.match(cc)):
-                stack_al.append(cc)
-                if(stack_kanji):
-                    wklist.append(self.get_stack_str(stack_kanji))
-                    stack_kanji.clear()
-                if(stack_num):
-                    wklist.append(self.get_stack_str(stack_num))
-                    stack_num.clear()
-                if(stack_ksuuji):
-                    wklist.append(self.get_stack_str(stack_ksuuji))
-                    stack_ksuuji.clear()
-            elif(self.reg_ksuji_nomi.match(cc)):
-                stack_ksuuji.append(cc)
-                if(stack_kanji):
-                    wklist.append(self.get_stack_str(stack_kanji))
-                    stack_kanji.clear()
-                if(stack_num):
-                    wklist.append(self.get_stack_str(stack_num))
-                    stack_num.clear()
-                if(stack_al):
-                    wklist.append(self.get_stack_str(stack_al))
-                    stack_al.clear()
-            elif(cc in self.space_haifun):
-                if(stack_kanji):
-                    wklist.append(self.get_stack_str(stack_kanji))
-                    stack_kanji.clear()
-                if(stack_num):
-                    wklist.append(self.get_stack_str(stack_num))
-                    stack_num.clear()
-                if(stack_al):
-                    wklist.append(self.get_stack_str(stack_al))
-                    stack_al.clear()
-                if(stack_ksuuji):
-                    wklist.append(self.get_stack_str(stack_ksuuji))
-                    stack_ksuuji.clear()
-                wklist.append('-')#スペースは-にする
-            else:
-                stack_kanji.append(cc)
-                if(stack_num):
-                    wklist.append(self.get_stack_str(stack_num))
-                    stack_num.clear()
-                if(stack_al):
-                    wklist.append(self.get_stack_str(stack_al))
-                    stack_al.clear()
-                if(stack_ksuuji):
-                    wklist.append(self.get_stack_str(stack_ksuuji))
-                    stack_ksuuji.clear()
-        if(stack_kanji):
-            wklist.append(self.get_stack_str(stack_kanji))
-            stack_kanji.clear()
-        if(stack_num):
-            wklist.append(self.get_stack_str(stack_num))
-            stack_num.clear()
-        if(stack_al):
-            wklist.append(self.get_stack_str(stack_al))
-            stack_al.clear()
-        if(stack_ksuuji):
-            wklist.append(self.get_stack_str(stack_ksuuji))
-            stack_ksuuji.clear()
-
-        # print(wklist)
-
-
-
-        wklist2 = []
-        tmp_stack=[]
-        if(self.reg_ksuji_fukumu.match(wkstr)):
-            # print('#1-2')#ここは漢数字が入ってる場合のみやる
-            for cc in wklist:
-                if(self.reg_ksuji_nomi.match(cc)):
-                    tmp_stack.append(cc)
+            if(tmp_buff):
+                if(tmp_cc_type == self.get_char_type(cc)):
+                    tmp_buff.append(cc)
                 else:
-                    if(tmp_stack):
-                        if(cc in self.sp_addr_strs or self.req_sp_chiwari.match(cc)):
-                            wklist2.append(kansuji2arabic(self.get_stack_str(tmp_stack)))
-                        else:
-                            wklist2.append(self.get_stack_str(tmp_stack))
-                        tmp_stack.clear()
-                    wklist2.append(cc)
-
-            if(tmp_stack):
-                wklist2.append(kansuji2arabic(self.get_stack_str(tmp_stack)))
-                tmp_stack.clear()
-            # print(wklist2)
-        else:
-            wklist2 = wklist
-
-        # print('#2')
-        current_idx = 0
-        if 'F' in wklist2:
-            for cc in wklist2:
-                if(cc == 'F'):
-                    if(current_idx == len(wklist2)-1):
-                        wklist2.pop(current_idx)
-                    else:
-                        wklist2[current_idx] = '-'
-                current_idx += 1
-        # print(wklist2)
-
-        # print('#3')
-        final_list = []
-        tmp_stack_num = []
-        tmp_stack_al = []
-        for cc in wklist2:
-            if(cc.isdecimal()):
-                tmp_stack_num.append(cc)
-                if(tmp_stack_al):
-                    final_list.append(self.get_stack_str(tmp_stack_al))
-                    final_list.append('-')
-                    tmp_stack_al.clear()
-
-            elif(self.reg_al.fullmatch(cc)):
-                tmp_stack_al.append(cc)
-                if(tmp_stack_num):
-                    final_list.append(self.get_stack_str(tmp_stack_num))
-                    final_list.append('-')
-                    tmp_stack_num.clear()
+                    tmp_list01.append(self.get_list_joinstr(tmp_buff).replace(' ','-'))
+                    tmp_buff.clear()
+                    tmp_cc_type = self.get_char_type(cc)
+                    tmp_buff.append(cc)
             else:
-                if(tmp_stack_al):
-                    final_list.append(self.get_stack_str(tmp_stack_al))
-                    final_list.append('-')
-                    tmp_stack_al.clear()
-                if(tmp_stack_num):
-                    final_list.append(self.get_stack_str(tmp_stack_num))
-                    final_list.append('-')
-                    tmp_stack_num.clear()
+                tmp_cc_type = self.get_char_type(cc)
+                tmp_buff.append(cc)
+        
+        if(tmp_buff):
+            tmp_list01.append(self.get_list_joinstr(tmp_buff).replace(' ','-'))
+        
+        tmp_list02 = []
+        tmp_buff=[]
+        #ここは漢数字が入ってる場合のみやる（漢数字を数字に変換）
+        if(self.reg_ksuji_fukumu.match(wkstr)):
+            for cc in tmp_list01:
+                if(self.reg_ksuji_nomi.match(cc)):
+                    tmp_buff.append(cc)
+                else:
+                    if(tmp_buff):
+                        if(cc in self.sp_addr_strs or self.req_sp_chiwari.match(cc)):
+                            tmp_list02.append(kansuji2arabic(self.get_list_joinstr(tmp_buff)))
+                        else:
+                            tmp_list02.append(self.get_list_joinstr(tmp_buff))
+                        tmp_buff.clear()
+                    tmp_list02.append(cc)
 
-        if(tmp_stack_al):
-            tmpstr = self.get_stack_str(tmp_stack_al)
-            if(tmpstr != '-'):
-                final_list.append(self.get_stack_str(tmp_stack_al))
-            tmp_stack_al.clear()
-        if(tmp_stack_num):
-            tmpstr = self.get_stack_str(tmp_stack_num)
-            if(tmpstr != '-'):
-                final_list.append(self.get_stack_str(tmp_stack_num))
-            tmp_stack_num.clear()
+            if(tmp_buff):
+                tmp_list02.append(kansuji2arabic(self.get_list_joinstr(tmp_buff)))
+                tmp_buff.clear()
+        else:
+            tmp_list02 = tmp_list01
 
-        # print(final_list)
+        #"F"の場合だけ特殊な処理(文字列の最後にFがある場合はFは消す)
+        current_idx = 0
+        if 'F' in tmp_list02:
+            for cc in tmp_list02:
+                if(cc == 'F'):
+                    if(current_idx == len(tmp_list02)-1):
+                        tmp_list02.pop(current_idx)
+                    else:
+                        tmp_list02[current_idx] = '-'
+                current_idx += 1
 
-        # print('#4')
-        final_tmp = []
-        for cc in final_list:
-            if(final_tmp):
-                if(not(cc == '-' and final_tmp[-1]=='-')):
-                    final_tmp.append(cc)
+        # 数字とアルファベットを抜き出す（漢字等はハイフンにする）
+        tmp_list03 = []
+        tmp_cc_type = 0
+        for cc in tmp_list02:
+            tmp_cc_type = self.get_char_type2(cc)
+            if(tmp_cc_type in [0,1]):
+                tmp_list03.append(cc)
+            else:
+                tmp_list03.append('-')
+
+        # 連続したハイフンを一つにする
+        tmp_list04 = []
+        for cc in tmp_list03:
+            if(tmp_list04):
+                if(not(cc == '-' and tmp_list04[-1]=='-')):
+                    tmp_list04.append(cc)
             elif(not(cc=='-')):
-                final_tmp.append(cc)
-        # print(final_tmp)
+                tmp_list04.append(cc)
 
-        # print('#5')
+        # 独立したアルファベットの前後にあるハイフンは削除
         current_idx = 0
         result_list = []
-        for cc in final_tmp:
+        for cc in tmp_list04:
             if(result_list):
                 if(self.reg_al.fullmatch(cc)):
                     if(result_list[-1]=='-'):
@@ -218,14 +142,14 @@ class Addr2CBarData:
             else:
                 result_list.append(cc)
 
+        #先頭と末尾のハイフンは削除する
         if(result_list):
             if(result_list[-1] == '-'):
                 result_list.pop()
-
         if(result_list):
             if(result_list[0] == '-'):
                 result_list.remove(0)
 
-        # print(result_list)
+        #最後のListを連結して戻す
         return ''.join(result_list)
 
